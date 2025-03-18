@@ -2,4 +2,8 @@
 
 assets/
 models/
+results/
+executables/
+
 .bashrc
+

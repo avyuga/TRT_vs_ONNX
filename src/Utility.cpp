@@ -26,8 +26,12 @@ void Utility::drawResult(
     
     cimg_library::CImg<unsigned char> img_normalized = img.normalize(0, 255);
     unsigned char color[] = {255, 0, 0};
+    unsigned char fg_color[] = {255, 255, 255};
+    unsigned char bg_color[] = {0, 0, 0};
+    
     for (Detection const& det : detections){
         img.draw_rectangle(det.bbox.x0, det.bbox.y0, det.bbox.x1, det.bbox.y1, color, 1, 0xFFFFFFFF);
+        img.draw_text(det.bbox.x0, det.bbox.y0, std::to_string(det.classId).c_str(), fg_color, bg_color, 1);
     }
 
     img.save_png(file_name);

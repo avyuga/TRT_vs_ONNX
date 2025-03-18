@@ -68,7 +68,7 @@ class Detection{
         Detection(BBox bbox_, float score_, int classId_):
             bbox(bbox_),
             score(score_),
-            classId(classId){
+            classId(classId_){
         }
     
 };

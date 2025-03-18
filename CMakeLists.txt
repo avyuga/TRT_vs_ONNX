@@ -76,7 +76,7 @@ set(TARGET_ONNX "Yolov10ONNX")
 add_executable(${TARGET_ONNX} "${CMAKE_SOURCE_DIR}/src/Yolov10ONNX.cpp" "${CMAKE_SOURCE_DIR}/src/Utility.cpp")
 
 target_link_libraries(${TARGET_ONNX} 
-  "${ONNX_DIR}/lib/"
+  "${ONNX_DIR}/lib/libonnxruntime.so"
   ${PNG_LIB}
 )
 

@@ -137,7 +137,7 @@ int main(int argc, char** argv)
     Yolov10ONNX Engine(params);
 
     const std::filesystem::path img_path{"assets/"};
-    std::vector<cimg_library::CImg<float>> img_list = Utility::processInput(params, img_path);
+    
 	std::vector<cimg_library::CImg<float>> fullImgList = Utility::processInput(params, img_path);
     int numberOfImages = fullImgList.size();
     std::cout << "Number of Images: " << numberOfImages << std::endl;
