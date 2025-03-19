@@ -111,7 +111,7 @@ void Utility::logInference(Params p, const char* engine, int maxBatchSize, std::
         throw std::runtime_error("Could not parse model name");
     }
 
-	outputFile << engine << ", " << model_variant << ", " << p.numThreads << ", ";
+	outputFile << engine << "," << model_variant << "," << p.numThreads << ",";
 	std::copy(data.begin(), data.end(), std::experimental::ostream_joiner(outputFile, ','));
     outputFile << "\n";
 	outputFile.close();

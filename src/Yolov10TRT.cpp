@@ -101,13 +101,17 @@ bool Yolov10TRT::load(){
     
     
     mRuntime = std::shared_ptr<nvinfer1::IRuntime>(nvinfer1::createInferRuntime(this->logger));
-    assert(mRuntime != nullptr);
+    assert(mRuntime);
     
     mEngine = std::shared_ptr<nvinfer1::ICudaEngine>(mRuntime->deserializeCudaEngine(trtModelStream_.data(), size));
-    assert(mEngine != nullptr);
+    assert(mEngine);
+
+    mContext = std::unique_ptr<nvinfer1::IExecutionContext>(mEngine->createExecutionContext());
+    assert(mContext);
     
     return true;
 }
+
 
 
 void Yolov10TRT::detect(
@@ -115,21 +119,18 @@ void Yolov10TRT::detect(
     float* rawOutput
 ){
     
-    auto context = std::unique_ptr<nvinfer1::IExecutionContext>(mEngine->createExecutionContext());
-    assert(context);
-
     cudaStream_t stream;
     cudaStreamCreate(&stream);
 
     nvinfer1::Dims4 inputDims = {imgList.size(), mParams.inputNChannels, mParams.inputHeight, mParams.inputWidth};
-    context->setInputShape(mParams.inputTensorNames[0].c_str(), inputDims);
+    mContext->setInputShape(mParams.inputTensorNames[0].c_str(), inputDims);
 
-    BufferManager buffers(mEngine, imgList.size(), context.get());
+    BufferManager buffers(mEngine, imgList.size(), mContext.get());
 
     for (int32_t i = 0, e = mEngine->getNbIOTensors(); i < e; i++)
     {
         auto const name = mEngine->getIOTensorName(i);
-        context->setTensorAddress(name, buffers.getDeviceBuffer(name));
+        mContext->setTensorAddress(name, buffers.getDeviceBuffer(name));
     }
     assert(mParams.inputTensorNames.size() == 1); // only one model entrance
 
@@ -146,21 +147,26 @@ void Yolov10TRT::detect(
     buffers.copyInputToDeviceAsync(stream);
 
     // bool status = context->executeV2(buffers.getDeviceBindings().data());
-    bool status = context->enqueueV3(stream);
+    bool status = mContext->enqueueV3(stream);
     assert(status);
-
 
     // Memcpy from device output buffers to host output buffers
     // buffers.copyOutputToHost();
     buffers.copyOutputToHostAsync(stream);
     cudaStreamSynchronize(stream);
-    cudaStreamDestroy(stream);
-
-    float* output = static_cast<float*>(buffers.getHostBuffer(mParams.outputTensorNames[0]));
-    std::copy(output, output + imgList.size()*mParams.outputLength*mParams.outputItemSize*sizeof(float), rawOutput);
-
+    
+    rawOutput = static_cast<float*>(buffers.getHostBuffer(mParams.outputTensorNames[0]));
 }
 
+Yolov10TRT::~Yolov10TRT(){
+    this->exit();
+}
+
+void Yolov10TRT::exit(){
+    // очистка буферов выполняется автоматически по определению класса Buffers.h
+    cudaStreamSynchronize(stream);
+    cudaStreamDestroy(stream);
+}
 
 
 int main(int argc, char** argv)

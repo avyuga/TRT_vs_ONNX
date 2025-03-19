@@ -103,30 +103,25 @@ inline void setAllDynamicRanges(nvinfer1::INetworkDefinition* network, float inR
 class Yolov10TRT{
     public:
         Yolov10TRT(Params& params): 
-            mParams(params),
-            mRuntime(nullptr),
-            mEngine(nullptr){
+            mParams(params){
         }
     
         bool build();
         bool load();
-        // std::list<Detection> detect(cimg_library::CImg<float> img);
         void detect(
             std::vector<cimg_library::CImg<float>> img_list, 
             float* rawOutput
         );
+        void exit();
         
     
     private:
         Params mParams; // The parameters for the sample.
     
-        nvinfer1::Dims mInputDims;  // The dimensions of the input to the network.
-        nvinfer1::Dims mOutputDims; // The dimensions of the output to the network.
-        int mNumber{0};             // The number to classify
-    
-        std::shared_ptr<nvinfer1::IRuntime> mRuntime;   // The TensorRT runtime used to deserialize the engine
-        std::shared_ptr<nvinfer1::ICudaEngine> mEngine; // The TensorRT engine used to run the network
-        std::vector<std::vector<Detection>> processOutput(float* output, int numImages, Params params);
-    
+        std::shared_ptr<nvinfer1::IRuntime> mRuntime = nullptr;   // The TensorRT runtime used to deserialize the engine
+        std::shared_ptr<nvinfer1::ICudaEngine> mEngine = nullptr; // The TensorRT engine used to run the network
+        std::unique_ptr<nvinfer1::IExecutionContext> mContext = nullptr; // The TensorRT context
+        cudaStream_t stream = nullptr;
+
         Logger logger;
 };

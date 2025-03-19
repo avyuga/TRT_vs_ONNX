@@ -4,6 +4,8 @@ assets/
 models/
 results/
 executables/
+build/
+__pycache__/
 
 .bashrc
-
+.ipynb_checkpoints/
