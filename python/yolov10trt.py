@@ -10,6 +10,7 @@ from utils import (BBox, Detection, log_inference, parse_args,
                    preprocess_all_images)
 
 import tensorrt as trt
+
 TRT_LOGGER = trt.Logger()
 
 
@@ -85,7 +86,7 @@ class YoloV10TRT:
             )
         trt_outputs = trt_outputs[0].reshape(batch.shape[0], 300, 6)
         return trt_outputs
-    
+
 
 if __name__ == "__main__":
     args = parse_args()
