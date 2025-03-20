@@ -41,25 +41,13 @@ def preprocess_all_images(directory: str) -> list:
     return processed_images
 
 
-<<<<<<< HEAD
-def draw_on_image():
-    pass
-
-
-=======
->>>>>>> add python inference
 def log_inference(args, engine: str, max_batch_size: int, data: np.ndarray):
     output_file_path = "../python_result.csv"
     
     if not os.path.exists(output_file_path):
         with open(output_file_path, 'w') as f:
-<<<<<<< HEAD
             row = "Backend,Model,NumThreads," + \
                 ",".join(map(str, list(range(1, max_batch_size+1)))) + "\n"
-=======
-            row = "Backend, Model, NumThreads, " + \
-                ", ".join(map(str, list(range(1, max_batch_size+1)))) + "\n"
->>>>>>> add python inference
             f.write(row)
     with open(output_file_path, 'a') as f:
         onnx_file_name = args.model_path.split("/")[-1]
@@ -69,11 +57,7 @@ def log_inference(args, engine: str, max_batch_size: int, data: np.ndarray):
             model_variant = match.group(1)
         else:
             raise RuntimeError("Could not parse model name")
-<<<<<<< HEAD
         row = f"{engine},{model_variant},{args.num_threads}," + ",".join(map(str, data)) + "\n"
-=======
-        row = f"{engine}, {model_variant}, {args.num_threads}, " + ", ".join(map(str, data)) + "\n"
->>>>>>> add python inference
         f.write(row)
         
     

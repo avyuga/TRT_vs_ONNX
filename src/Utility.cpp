@@ -90,7 +90,7 @@ void Utility::logInference(Params p, const char* engine, int maxBatchSize, std::
 		std::vector<int> batchHeaders(maxBatchSize);
     	std::iota(batchHeaders.begin(), batchHeaders.end(), 1); // fill from 1 to maxBatchSize
 		
-		outputFile << "Backend, Model, NumThreads, ";
+		outputFile << "Backend,Model,NumThreads,";
         std::copy(batchHeaders.begin(), batchHeaders.end(), std::experimental::ostream_joiner(outputFile, ','));
         outputFile << "\n"; // Добавляем символ новой строки после заголовка
 		outputFile.close();

@@ -5,6 +5,7 @@ from utils import preprocess_all_images, Detection, BBox, parse_args, log_infere
 
 import onnxruntime as ort
 
+
 class YoloV10ONNX:
     def __init__(self, model_path):
         self.session = ort.InferenceSession(
@@ -23,9 +24,8 @@ class YoloV10ONNX:
     
 if __name__ == "__main__":
     args = parse_args()
-    
     onnx_model = YoloV10ONNX(args.model_path)
-
+    
     image_batch = preprocess_all_images("../assets")
     batch = np.stack(image_batch, axis=0).astype(np.float32)
 

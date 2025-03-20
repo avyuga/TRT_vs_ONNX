@@ -105,6 +105,7 @@ class Yolov10TRT{
         Yolov10TRT(Params& params): 
             mParams(params){
         }
+        ~Yolov10TRT();
     
         bool build();
         bool load();
