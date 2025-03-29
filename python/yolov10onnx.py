@@ -7,15 +7,24 @@ import onnxruntime as ort
 
 
 class YoloV10ONNX:
-    def __init__(self, model_path):
+    def __init__(self, model_path, num_threads):
         self.session = ort.InferenceSession(
             model_path, 
             providers=['CUDAExecutionProvider'],
-            provider_options=[{'device_id': 0}]
+            provider_options=[{'device_id': 2}]
         )
+        self.session.inter_op_num_threads = num_threads
+        self.session.intra_op_num_threads = num_threads
+        
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
 
+    def warmup(self):
+        for i in range(75):
+            batch_size = random.randint(1, 17)
+            batch = np.random.uniform(low=0, high=1, size=(batch_size, 3, 640, 640))
+            self.session.run([self.output_name], {self.input_name: batch.astype(np.float32)})[0]
+        print("finished warmup...")
         
     def detect(self, batch: np.ndarray) -> np.ndarray:
         result = self.session.run([self.output_name], {self.input_name: batch.astype(np.float32)})[0]
@@ -24,7 +33,8 @@ class YoloV10ONNX:
     
 if __name__ == "__main__":
     args = parse_args()
-    onnx_model = YoloV10ONNX(args.model_path)
+    onnx_model = YoloV10ONNX(args.model_path, args.num_threads)
+    onnx_model.warmup()
     
     image_batch = preprocess_all_images("../assets")
     batch = np.stack(image_batch, axis=0).astype(np.float32)

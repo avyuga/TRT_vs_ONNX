@@ -2,7 +2,7 @@
 
 assets/
 models/
-results/
+*.png
 executables/
 build/
 __pycache__/

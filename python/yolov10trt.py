@@ -68,7 +68,27 @@ class YoloV10TRT:
                 outputs.append(bindingMemory)
         return inputs, outputs, bindings, stream
 
-        
+    def warmup(self):
+        for i in range(50):
+            with self.engine.create_execution_context() as context:
+                batch_size = random.randint(1, 16)
+                batch = np.random.uniform(low=0, high=1, size=(batch_size, 3, 640, 640)).astype(np.float32)
+                
+                context.set_input_shape("images", (batch.shape[0], 3, 640, 640))
+                
+                inputs, outputs, bindings, stream = self._allocate_buffers(batch_size)
+                inputs[0].host = batch
+                
+                trt_outputs = common.do_inference(
+                    context,
+                    engine=self.engine,
+                    bindings=bindings,
+                    inputs=inputs,
+                    outputs=outputs,
+                    stream=stream,
+                )
+        print("Finished Warmup")
+
     def detect(self, batch: np.ndarray):
         with self.engine.create_execution_context() as context:
             context.set_input_shape("images", (batch.shape[0], 3, 640, 640))
@@ -92,6 +112,7 @@ if __name__ == "__main__":
     args = parse_args()
     
     trt_model = YoloV10TRT(args.model_path)
+    trt_model.warmup()
 
     image_batch = preprocess_all_images("../assets")
     batch = np.stack(image_batch, axis=0).astype(np.float32)
